@@ -130,9 +130,26 @@ function App() {
     .append("g")
     .attr("transform", (d) => `translate(${d.x}, ${d.y})`);
 
-  nodes.append("circle").attr("r", 10);
-
+  nodes.append("circle").attr("r", 10).style("opacity", 0);
+  d3.select("svg")
+    .selectAll("circle")
+    .data(treeData.descendants())
+    .join(
+      (enter) =>
+        enter
+          .append("circle")
+          .attr("cy", 50)
+          .attr("cx", (d) => d)
+          .attr("r", 40),
+      (update) => update,
+      (exit) => exit.transition().duration(1000).attr("cy", 500).remove()
+    )
+    .transition()
+    .duration(1000)
+    .attr("cx", (d) => d)
+    .style("opacity", 1);
   // Add text next to each node
+
   nodes
     .append("text")
     .attr("x", 15) // Adjust the x position according to your needs
