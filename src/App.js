@@ -52,9 +52,8 @@
 //
 // export default App;
 
-import logo from './logo.svg';
-import './App.css';
-import { select, tree, hierarchy } from 'd3'; // Removed unnecessary imports
+import React from 'react';
+import { select, tree, hierarchy } from 'd3';
 
 function App() {
   const data = [
@@ -83,34 +82,25 @@ function App() {
   // Stratify the data
   const stratify = d3.stratify()
       .parentId(d => d.parentId)
-      .id(d => d.id);
-
+      .id(d => d.id)
   const rootNode = stratify(data);
 
   // Create a tree layout
-  const treeLayout = d3.tree().size([500, 300]);
+  const treeLayout = tree().size([500, 300]);
 
   // Apply the tree layout to the hierarchical data
   const treeData = treeLayout(rootNode);
 
   // Select the root of the tree and bind the data
-  const nodes = select("body")
+  const svg = select("body")
       .append("svg")
       .attr("width", 600)
       .attr("height", 400)
       .append("g")
-      .attr("transform", "translate(50,50)")
-      .selectAll("circle")
-      .data(treeData.descendants())
-      .enter()
-      .append("circle")
-      .attr("cx", d => d.x)
-      .attr("cy", d => d.y)
-      .attr("r", 10);
+      .attr("transform", "translate(50,50)");
 
   // Draw edges (links) between nodes
-  select("svg g")
-      .selectAll("line")
+  svg.selectAll("line")
       .data(treeData.links())
       .enter()
       .append("line")
@@ -119,6 +109,21 @@ function App() {
       .attr("x2", d => d.target.x)
       .attr("y2", d => d.target.y)
       .attr("stroke", "black");
+
+  // Draw nodes
+  const nodes = svg.selectAll("g")
+      .data(treeData.descendants())
+      .enter()
+      .append("g")
+      .attr("transform", d => `translate(${d.x}, ${d.y})`);
+
+  nodes.append("circle")
+      .attr("r", 10);
+
+  // Add text next to each node
+  nodes.append("text")
+      .attr("x", 15) // Adjust the x position according to your needs
+      .text(d => d.data.message);
 
   return null; // Replace with your actual JSX
 }
